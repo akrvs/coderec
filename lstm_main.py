@@ -1,39 +1,31 @@
-import torch.nn as nn
-import torch.optim as optim
-from architectures.lstm_model import LstmModel
+from utils.preproccessing import preprocess_data
 from data.database import read_database
-from training.train_loop import train_model
-from training.plot_loss import plot_losses
-from utils.preproccessing import *
+from neural.lstm_predicting import generate_candidates
+from utils.load_or_train import load_or_train_lstm_model
 
-# Global Variables
-n_epochs = 100
 window_length = 1
+n_epochs = 100
 batch_size = 128
 
-# Read the database.db
-word_list = read_database()
+database_path = '/Users/akrvs/PycharmProjects/database.db'
+word_list = read_database(database_path)
 
-# Preprocess data
 word_list, word_to_int, int_to_word, n_words = preprocess_data(word_list)
-X, y = create_sequences(word_list, word_to_int, window_length)
-train_loader, val_loader = data_loading(X, y, test_size=0.2, batch_size=batch_size)
 
-# Define the LSTM model and it's parameters
-WordModel = LstmModel(n_words)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-WordModel.to(device)
-optimizer = optim.Adam(WordModel.parameters())
-loss_fn = nn.CrossEntropyLoss()
+pretrained_model_path = "/Users/akrvs/PycharmProjects/Project/lstm_model.pth"
+best_lstm_model = load_or_train_lstm_model(database_path, window_length, batch_size, n_epochs, pretrained_model_path,
+                                           n_words)
 
-# Training
-best_model, train_losses, val_losses = train_model(WordModel, "lstm", train_loader, val_loader, optimizer,
-                                                   n_epochs=n_epochs, loss_fn=loss_fn, word_list=None)
+print()
+initial_prompt = input("Enter a word from the database: ")
+candidates = generate_candidates(initial_prompt, window_length, n_words, word_to_int, int_to_word, best_lstm_model)
+print(candidates)
 
-# Plot losses
-plot_losses(train_losses, val_losses, n_epochs=n_epochs)
 
-# Save the best model
-torch.save(best_model, "lstm_model.pth")
+
+
+
+
+
 
 

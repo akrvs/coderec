@@ -1,2 +1,3 @@
 from utils.preproccessing import *
-from utils.cosine_similarity import cosine_similarity
+from utils.similarities import cosine_similarity
+from utils.load_or_train import load_or_train_lstm_model
