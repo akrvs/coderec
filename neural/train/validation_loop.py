@@ -9,7 +9,7 @@ def calculate_val_loss(model, val_loader, loss_fn=None):
     Args:
         model: The model for which to calculate the validation loss.
         val_loader: The data loader for the validation data.
-        loss_fn: The loss function used for calculating the loss.
+        loss_fn: The loss function used for calculating the loss. Default is None.
 
     Returns:
         The validation loss.

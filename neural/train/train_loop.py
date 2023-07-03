@@ -16,8 +16,8 @@ def train_model(model, model_type, train_loader, val_loader, optimizer, n_epochs
         val_loader: The data loader for the validation data.
         optimizer: The optimizer used for train the model.
         n_epochs: The total number of epochs to train for.
-        loss_fn: The loss function used for calculating the loss.
-        word_list: The list of words corresponding to the input data.
+        loss_fn: The loss function used for calculating the loss. Default is None.
+        word_list: The list of words corresponding to the input data. Default is None.
 
     Returns:
         The best model obtained during train, and lists containing train and validation losses.
@@ -51,7 +51,7 @@ def train_model(model, model_type, train_loader, val_loader, optimizer, n_epochs
                     y_pred = model(X_batch)
                     similarity = cosine_similarity(y_pred, y_batch)
 
-                    similarity_results.append(similarity)
+                    similarity_results = similarity
 
                     # result_file.write("Cosine Similarity:\n")
                     # result_file.write(str(similarity) + "\n")
