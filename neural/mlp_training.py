@@ -49,7 +49,7 @@ def train_mlp_model(model_class, database_path, best_lstm_model, candidates, win
                                                                            optimizer, n_epochs=n_epochs, loss_fn=None,
                                                                            word_list=word_list)
 
-    neural.plot_losses(train_losses, val_losses, n_epochs=n_epochs)
+    # neural.plot_losses(train_losses, val_losses, n_epochs=n_epochs)
 
     torch.save(best_model, "/Users/akrvs/PycharmProjects/Project/mlp_model.pth")
 

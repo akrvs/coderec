@@ -3,8 +3,8 @@ import utils
 from neural.mlp_training import train_mlp_model
 from utils.load_or_train import load_or_train_lstm_model
 import neural
+import random
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
 
 # TO DOs:
 # A) ACCEPT COMMAND-LINE ARGUMENTS USING THE 'argparse' MODULE FOR BOTH THE pretrained_model_path & THE database_path.
@@ -28,6 +28,7 @@ candidates = utils.generate_candidates(initial_prompt=input("Enter a word from t
                                        int_to_word=int_to_word, best_lstm_model=best_lstm_model)
 best_mlp_model = train_mlp_model(neural.MlpModel, database_path, best_lstm_model,
                                  candidates, window_length, batch_size, n_epochs)
+
 # Predictions
 candidate_embeddings = neural.get_candidate_embeddings(embedding_model=best_lstm_model.lstm, candidates=candidates,
                                                        window_length=window_length, n_words=n_words,
@@ -41,26 +42,7 @@ for i, candidate in enumerate(candidates):
         similarity = similarity_results[j][i]
         print(f"Cosine Similarity with candidate {other_candidate}: {similarity:.4f}")
 
-# Find the best k using Silhouette Score
-    '''k_values = range(2, 11)  # Range of k values to consider
-silhouette_scores = []
-for k in k_values:
-    kmeans = KMeans(n_clusters=k)
-    kmeans.fit(candidate_embeddings)
-    cluster_labels = kmeans.labels_
-    score = silhouette_score(candidate_embeddings, cluster_labels)
-    silhouette_scores.append(score)
-
-# Find the best k value
-best_index = silhouette_scores.index(max(silhouette_scores))
-best_k = k_values[best_index]
-
-# Print the best k value and Silhouette Score
-print(f"Best k: {best_k}")
-print(f"Silhouette Score: {silhouette_scores[best_index]}")
-'''
-# Running the code above, we get k = 9. So for k = 9:
-k = 9
+'''k = 4
 kmeans = KMeans(n_clusters=k)
 kmeans.fit(candidate_embeddings)
 cluster_labels = kmeans.labels_
@@ -76,17 +58,53 @@ for cluster_id, candidates_in_cluster in enumerate(cluster_candidates):
     for candidate in candidates_in_cluster:
         print(candidate)
     print()
+'''
+n = len(candidates)
 
-'''# Extract one representative sentence for each cluster. I choose the sentence that is closest to the centroid of the cluster.
-representative_sentences = []
-for cluster_id, candidates_in_cluster in enumerate(cluster_candidates):
-    centroid = kmeans.cluster_centers_[cluster_id]
-    closest_candidate = min(candidates_in_cluster, key=lambda c: utils.cosine_similarity([centroid],
-                                                                                         [candidate_embeddings[c]]))
-    representative_sentences.append(closest_candidate)
+def create_gene(k, n): # Eixe thema h .choices kai ebaze ligotera 1 genikotera.
+    gene = [0 for _ in range(n)]
+    selected_positions = random.sample(range(n), k=k)
+    for pos in selected_positions:
+        gene[pos] = 1
 
-# Print representative sentence for each cluster
-for cluster_id, representative_sentence in enumerate(representative_sentences):
-    print(f"Cluster {cluster_id}:")
-    print(representative_sentence)
-    print()'''
+    return gene
+
+def fitness(gene):
+    positions = [i for i, exists in enumerate(gene) if exists == 1]
+    ret = 0
+    for i in positions:
+        for j in positions:
+            ret += similarity_results[i][j]
+    return ret
+
+def permute(gene):
+    while True:
+        positions = [i for i, exists in enumerate(gene) if exists == 1]
+        pos = positions[int(random.random() * len(positions))]
+        new_gene = [value for value in gene]
+        new_gene[pos] = 0
+        new_gene[int(random.random() * len(new_gene))] = 1
+        print(new_gene)
+        if sum(new_gene) >= 5:
+            return new_gene
+
+pool = [create_gene(5, n) for _ in range(10)]
+print(pool[0])
+print(permute(pool[0]))
+
+for epoch in range(30):
+    new_pool = []
+    for gene in pool:
+        for _ in range(10):
+            new_pool.append(permute(gene))
+        new_pool.append(gene)
+    evals = {i: -fitness(gene) for i, gene in enumerate(pool)}
+    pool_ids = sorted(list(evals.keys()), key=lambda i: evals[i])[:len(pool)]
+    pool = [new_pool[i] for i in pool_ids]
+    print("Best Fitness: ",  - evals[pool_ids[0]])
+    print(evals)
+    print(pool_ids)
+
+results = [candidates[i] for i, exists in enumerate(pool[0]) if exists == 1]
+print(results)
+
