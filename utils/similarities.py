@@ -16,4 +16,10 @@ def cosine_similarity(X, y):
     X = torch.nn.functional.normalize(X, p=2, dim=1)
     y = torch.nn.functional.normalize(y, p=2, dim=1)
 
-    return torch.matmul(X, y.t())
+    return torch.matmul(X, y.t()) * 0.5 + 0.5
+
+def lukasiewicz_implication_2(x, y, z):
+    T = torch.max(torch.zeros_like(x), x + y - 1)
+    return torch.min(torch.ones_like(T),  1-T+z)
+
+

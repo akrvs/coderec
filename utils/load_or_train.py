@@ -34,4 +34,3 @@ def load_or_train_lstm_model(model_class, database_path, window_length, batch_si
         best_lstm_model.eval()
 
     return best_lstm_model
-

@@ -1,4 +1,4 @@
-from utils.preproccessing import *
-from utils.similarities import cosine_similarity
+from utils.similarities import *
 from utils.load_or_train import load_or_train_lstm_model
-from utils.lstm_predicting import *
+from utils.lstm_predicting import generate_candidates
+from utils.chatgpt_predicting import generate_candidates

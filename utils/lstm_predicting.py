@@ -59,10 +59,3 @@ def generate_candidates(initial_prompt, window_length, n_words, word_to_int, int
             candidates = new_candidates
 
     return candidates
-
-
-
-
-
-
-

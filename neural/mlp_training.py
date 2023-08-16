@@ -2,12 +2,11 @@ import torch.optim as optim
 import neural
 from neural.embeddings.extraction import *
 from data.database import read_database
-from utils.preproccessing import *
-from utils.preproccessing import data_loading
+from data.preproccessing import *
 
 def train_mlp_model(model_class, database_path, best_lstm_model, candidates, window_length, batch_size=128, n_epochs=100):
     """
-    Trains an MLP model using the provided database.
+    Trains an MLP model using thea provided database.
 
     Args:
         model_class: The class of the MLP model to train.

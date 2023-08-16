@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
 from data.database import read_database
-from utils.preproccessing import *
+from data.preproccessing import *
 import neural
 
 def train_lstm_model(model_class, database_path=None, window_length=1, batch_size=128, n_epochs=100):
