@@ -57,6 +57,6 @@ def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate,
         loss.backward()
         optimizer.step()
 
-        print(f"Epoch [{epoch + 1}/{num_epochs}] - Loss: {(loss.item()) / n:.4f} \t {(impl.item()) / n:.4f}")
+        # print(f"Epoch [{epoch + 1}/{num_epochs}] - Loss: {(loss.item()) / n:.4f} \t {(impl.item()) / n:.4f}")
 
     return all_similarity_results

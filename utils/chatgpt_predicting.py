@@ -9,7 +9,6 @@ def generate_candidates(initial_prompt):
 
     initial_prompt = initial_prompt.lower()
 
-    # Check if candidates file exists
     candidates_filename = f"/Users/akrvs/PycharmProjects/Project/candidates.pkl"
     if os.path.exists(candidates_filename):
         with open(candidates_filename, "rb") as f:
