@@ -1,12 +1,12 @@
 import torch.optim as optim
-import neural
 from neural.embeddings.extraction import *
 from data.database import read_database
 from data.preproccessing import *
+import neural
 
 def train_mlp_model(model_class, database_path, best_lstm_model, candidates, window_length, batch_size=128, n_epochs=100):
     """
-    Trains an MLP model using thea provided database.
+    Trains an MLP model using the provided database.
 
     Args:
         model_class: The class of the MLP model to train.
@@ -18,7 +18,7 @@ def train_mlp_model(model_class, database_path, best_lstm_model, candidates, win
         n_epochs: Number of training epochs. Default is 100.
 
     Returns:
-        The trained MLP model.
+        The state_dict of the trained MLP model.
     """
     if database_path is None:
         raise ValueError("Database path is required.")
@@ -48,8 +48,7 @@ def train_mlp_model(model_class, database_path, best_lstm_model, candidates, win
                                                                            optimizer, n_epochs=n_epochs, loss_fn=None,
                                                                            word_list=word_list)
 
-    # neural.plot_losses(train_losses, val_losses, n_epochs=n_epochs)
-
+    # Save only the state_dict
     torch.save(best_model, "/Users/akrvs/PycharmProjects/Project/mlp_model.pth")
 
-    return best_model
+    return candidate_embeddings

@@ -1,5 +1,4 @@
 import torch
-# import random
 from utils.similarities import cosine_similarity
 
 def calculate_val_loss(model, val_loader, loss_fn=None):

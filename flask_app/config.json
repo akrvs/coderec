@@ -1,0 +1,7 @@
+{
+    "batch_size": 128,
+    "learning_rate": 0.01,
+    "num_genes": 100,
+    "pretrained_model_path": "/Users/akrvs/PycharmProjects/Project/lstm_model.pth",
+    "database_path": "/Users/akrvs/PycharmProjects/Project/S08_question_answer_pairs_new.txt"
+}

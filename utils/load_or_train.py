@@ -24,6 +24,8 @@ def load_or_train_lstm_model(model_class, database_path, window_length, batch_si
         print("Pre-trained model found. Loading the model...")
         best_lstm_model = model_class(n_words)
         best_lstm_model.load_state_dict(torch.load(pretrained_model_path))
+        word_to_int = torch.load("/Users/akrvs/PycharmProjects/Project/word_to_int.pth")
+        int_to_word = torch.load("/Users/akrvs/PycharmProjects/Project/int_to_word.pth")
         best_lstm_model.eval()
     else:
         print("Pre-trained model not found. Training a new model...")
@@ -33,4 +35,4 @@ def load_or_train_lstm_model(model_class, database_path, window_length, batch_si
         best_lstm_model.load_state_dict(torch.load(pretrained_model_path))
         best_lstm_model.eval()
 
-    return best_lstm_model
+    return best_lstm_model, word_to_int, int_to_word

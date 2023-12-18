@@ -1,47 +1,55 @@
-import random
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
-def genetic_algorithm(candidates, similarity_results, k, num_genes, num_permutations, num_epochs):
-    n = len(candidates)
+def initialize_population(num_genes, num_candidates):
+    return np.random.choice(num_candidates, size=(num_genes, 5), replace=True)
 
-    def create_gene(k, n):
-        gene = [0 for _ in range(n)]
-        selected_positions = random.sample(range(n), k=k)
-        for pos in selected_positions:
-            gene[pos] = 1
-        return gene
+def calculate_fitness(embeddings, selected_indices):
+    selected_embeddings = [embeddings[i] for i in selected_indices]
+    similarity_matrix = cosine_similarity(selected_embeddings, selected_embeddings)
+    average_similarity = np.mean(similarity_matrix)
+    return -average_similarity
 
-    def fitness(gene):
-        positions = [i for i, exists in enumerate(gene) if exists == 1]
-        ret = 0
-        for i in positions:
-            for j in positions:
-                ret += similarity_results[i][j]
-        return ret
+def selection(population, fitness_scores):
+    sorted_indices = np.argsort(fitness_scores)
+    selected_indices = population[sorted_indices[-1:]]
+    return selected_indices
 
-    def permute(gene):
-        while True:
-            positions = [i for i, exists in enumerate(gene) if exists == 1]
-            pos = positions[int(random.random() * len(positions))]
-            new_gene = [value for value in gene]
-            new_gene[pos] = 0
-            new_gene[int(random.random() * len(new_gene))] = 1
-            if sum(new_gene) >= 5:
-                return new_gene
+def crossover(parents):
+    return np.mean(parents, axis=0).astype(int)
 
-    pool = [create_gene(k, n) for _ in range(num_genes)]
+def mutation(child, num_candidates):
+    mutation_point = np.random.choice(1)
+    child[mutation_point] = np.random.choice(num_candidates)
+    return child
+
+def genetic_algorithm(embeddings, num_genes, num_epochs):
+    num_candidates = len(embeddings)
+    population = initialize_population(num_genes, num_candidates)
+
+    best_fitness = float('-inf')
+    best_selected_indices = None
+    best_selected_embeddings = None
 
     for epoch in range(num_epochs):
-        new_pool = []
-        for gene in pool:
-            for _ in range(num_permutations):
-                new_pool.append(permute(gene))
-            new_pool.append(gene)
-        evals = {i: -fitness(gene) for i, gene in enumerate(pool)}
-        pool_ids = sorted(list(evals.keys()), key=lambda i: evals[i])[:len(pool)]
-        pool = [new_pool[i] for i in pool_ids]
-        '''print("Best Fitness: ", -evals[pool_ids[0]])
-        print(evals)
-        print(pool_ids)'''
+        fitness_scores = [calculate_fitness(embeddings, genes) for genes in population]
+        selected_indices = selection(population, fitness_scores)
 
-    results = [candidates[i] for i, exists in enumerate(pool[0]) if exists == 1]
-    return results
+        current_fitness = max(fitness_scores)
+        if current_fitness > best_fitness:
+            best_fitness = current_fitness
+            best_selected_indices = selected_indices
+            best_selected_embeddings = [embeddings[i] for i in best_selected_indices[0]]
+
+        new_population = []
+
+        for i in range(num_genes):
+            parents = population[np.random.choice(len(population), size=2, replace=False)]
+            child = crossover(parents)
+            child = mutation(child, num_candidates)
+            new_population.append(child)
+
+        population = np.array(new_population)
+
+    return best_selected_indices, best_selected_embeddings
+

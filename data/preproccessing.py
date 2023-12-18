@@ -1,8 +1,8 @@
 import numpy as np
 import torch
+import random
 import torch.utils.data as data
 from sklearn.model_selection import train_test_split
-
 
 def preprocess_data(word_list):
     """
@@ -61,6 +61,49 @@ def create_sequences(word_list, word_to_int, window_length):
     y = torch.tensor(array2, dtype=torch.long)
 
     return X, y
+
+def create_sequences_sampled(word_list, word_to_int, window_length, sample_size):
+    """
+    Creates input-output sequences from the given word list, samples a subset,
+    and performs one-hot encoding.
+
+    Args:
+        word_list: The preprocessed list of words.
+        word_to_int: The word-to-index dictionary.
+        window_length: The length of the input window.
+        sample_size: The size of the sample to be used.
+
+    Returns:
+        Torch tensors containing the input sequences and the output sequences, after encoding.
+    """
+    input_sequences = []
+    output_sequences = []
+
+    # Randomly sample a subset of the data
+    sample_indices = random.sample(range(len(word_list) - window_length), sample_size)
+
+    for i in sample_indices:
+        input_seq = word_list[i:i + window_length]
+        output_seq = word_list[i + window_length]
+
+        x = np.zeros((window_length, len(word_to_int)))
+        for j, word in enumerate(input_seq):
+            x[j, word_to_int[word]] = 1
+
+        y = np.zeros(len(word_to_int))
+        y[word_to_int[output_seq]] = 1
+
+        input_sequences.append(x)
+        output_sequences.append(y)
+
+    array1 = np.array(input_sequences)
+    array2 = np.array(output_sequences)
+
+    X = torch.tensor(array1, dtype=torch.float32)
+    y = torch.tensor(array2, dtype=torch.long)
+
+    return X, y
+
 
 
 def data_loading(X, y, test_size, batch_size):

@@ -1,29 +1,6 @@
 import torch
 import numpy as np
 
-def get_embeddings(embedding_model, train_loader):
-    """
-    Obtains embeddings for the input data using an embedding model.
-
-    Args:
-        embedding_model: The embedding model to use for generating embeddings.
-        train_loader: The data loader containing the input data.
-
-    Returns:
-        Tensor containing the embeddings for the input data.
-    """
-    embedding_model.eval()
-    embeddings = []
-    with torch.no_grad():
-        for X_batch, _ in train_loader:
-            output, _ = embedding_model(X_batch)
-            embeddings.extend(output[:, -1, :].tolist())
-
-    embeddings = np.array(embeddings)
-    embeddings_tensor = torch.tensor(embeddings, dtype=torch.float32)
-    return embeddings_tensor
-
-
 def get_candidate_embeddings(embedding_model, candidates, window_length, n_words, word_to_int):
     """
     Generates embeddings for the candidate inputs using the specified embedding model.

@@ -1,7 +1,7 @@
 import numpy as np
 from utils.similarities import cosine_similarity
 from neural.train.validation_loop import calculate_val_loss
-# from neural.embeddings.sampling import sampling
+from neural.embeddings.sampling import sampling
 
 
 def train_model(model, model_type, train_loader, val_loader, optimizer, n_epochs, loss_fn=None, word_list=None):
@@ -25,7 +25,7 @@ def train_model(model, model_type, train_loader, val_loader, optimizer, n_epochs
     """
     best_model = None
     best_loss = np.inf
-    # max_sample_size = 100
+    # max_sample_size = 5000
     train_losses = []
     val_losses = []
     similarity_results = []
@@ -35,30 +35,22 @@ def train_model(model, model_type, train_loader, val_loader, optimizer, n_epochs
         total_loss = 0
         for X_batch, y_batch in train_loader:
             if model_type == "lstm":
+                optimizer.zero_grad()
                 y_batch = y_batch.float()
                 X_batch = X_batch.float()
                 y_pred = model(X_batch)
                 loss = loss_fn(y_pred, y_batch)
-                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
 
             elif model_type == "mlp":
-                # with open("similarity_results.txt", "a") as result_file:
                     # words, sampled_embeddings = sampling(X_batch, word_list, max_sample_size)
                     # y_pred = model(sampled_embeddings)
                     y_pred = model(X_batch)
                     similarity = cosine_similarity(y_pred, y_batch)
 
                     similarity_results = similarity
-
-                    # result_file.write("Cosine Similarity:\n")
-                    # result_file.write(str(similarity) + "\n")
-
-                    # print("\t")
-                    # print("Words being compared: ")
-                    # print(words)
 
                     similarity = similarity.mean()
 

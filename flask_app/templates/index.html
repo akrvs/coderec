@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Selection</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Your custom styles here */
+        .custom-result {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Behavioural Assistance To Prompt Engineering</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="POST" action="/">
+                    <div class="form-group">
+                        <label for="prompt">Enter a Prompt:</label>
+                        <input type="text" id="prompt" name="prompt" required class="form-control">
+                    </div>
+                    <div class="form-row align-items-center">
+                        <div class="col-auto">
+                            <label for="model_choice">Choose a Model:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select id="model_choice" name="model_choice" class="form-control">
+                                <option value="LSTM">LSTM</option>
+                                <option value="ChatGPT">ChatGPT</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block mt-3">Run</button>
+                </form>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6 offset-md-3">
+                <h2 class="text-center">Results:</h2>
+                {% if result %}
+                    <div class="custom-result">
+                        {{ result }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

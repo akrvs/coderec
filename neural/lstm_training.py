@@ -4,7 +4,7 @@ from data.database import read_database
 from data.preproccessing import *
 import neural
 
-def train_lstm_model(model_class, database_path=None, window_length=1, batch_size=128, n_epochs=100):
+def train_lstm_model(model_class, database_path=None, window_length=2, batch_size=128, n_epochs=100):
     """
         Trains an LSTM model using the provided database.
 
@@ -30,7 +30,7 @@ def train_lstm_model(model_class, database_path=None, window_length=1, batch_siz
     WordModel = model_class(n_words)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     WordModel.to(device)
-    optimizer = optim.Adam(WordModel.parameters())
+    optimizer = optim.Adam(WordModel.parameters(), weight_decay=1e-4)
     loss_fn = nn.CrossEntropyLoss()
 
     best_model, train_losses, val_losses = neural.train_model(
@@ -41,6 +41,8 @@ def train_lstm_model(model_class, database_path=None, window_length=1, batch_siz
     neural.plot_losses(train_losses, val_losses, n_epochs=n_epochs)
 
     torch.save(best_model, "/Users/akrvs/PycharmProjects/Project/lstm_model.pth")
+    torch.save(word_to_int, "/Users/akrvs/PycharmProjects/Project/word_to_int.pth")
+    torch.save(int_to_word, "/Users/akrvs/PycharmProjects/Project/int_to_word.pth")
 
     return best_model
 

@@ -3,14 +3,12 @@ import torch.optim as optim
 import utils
 from utils.similarities import lukasiewicz_implication_2
 
-def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate, num_epochs, loss_function):
+def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate, num_epochs, loss_function, save_path=None):
 
     divided_embeddings_lists = [embeddings[i:i + 3] for i in range(0, len(embeddings), 3)]
-    divided_sentences_lists = [split_candidate_sentences[i:i + 3] for i in
-                               range(0, len(split_candidate_sentences), 3)]
+    divided_sentences_lists = [split_candidate_sentences[i:i + 3] for i in range(0, len(split_candidate_sentences), 3)]
 
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    all_similarity_results = []
 
     for epoch in range(num_epochs):
         model.train()
@@ -18,8 +16,6 @@ def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate,
         optimizer.zero_grad()
         n = 0
         impl = 0
-
-        sentence_similarity_results = []
 
         for triplet_index, (triplet_embeddings, _) in enumerate(zip(divided_embeddings_lists, divided_sentences_lists),
                                                                 start=1):
@@ -50,13 +46,11 @@ def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate,
                         loss += loss_function(x, y, z) + x + y + z
                         n += 1
                         impl += lukasiewicz_implication_2(x, y, z)
-                        sentence_similarity_results.append([x, y, z])
 
-        all_similarity_results.append(sentence_similarity_results)
 
         loss.backward()
         optimizer.step()
 
         # print(f"Epoch [{epoch + 1}/{num_epochs}] - Loss: {(loss.item()) / n:.4f} \t {(impl.item()) / n:.4f}")
 
-    return all_similarity_results
+
