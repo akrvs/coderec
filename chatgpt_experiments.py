@@ -14,7 +14,7 @@ pretrained_model_path = "/Users/akrvs/PycharmProjects/Project/lstm_model.pth"
 database_path = '/Users/akrvs/PycharmProjects/Project/Isaac_Asimov.txt'
 
 # API key for ChatGPT
-openai.api_key = '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'
+openai.api_key = ''
 
 # User's prompt
 prompt = input("Enter prompt here: ")
