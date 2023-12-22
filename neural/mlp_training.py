@@ -43,10 +43,12 @@ def train_mlp_model(model_class, database_path, best_lstm_model, candidates, win
     train_loader, val_loader = data_loading(candidate_embeddings, y[:candidate_embeddings.shape[0]],
                                             test_size=0.2, batch_size=batch_size)
 
-    best_model, train_losses, val_losses, similarity_results = neural.train_model(mlp_model, "mlp", train_loader,
-                                                                                  val_loader,
-                                                                           optimizer, n_epochs=n_epochs, loss_fn=None,
-                                                                           word_list=word_list)
+    best_model, train_losses, val_losses, similarity_results = neural.train_model(mlp_model, "mlp", optimizer,
+                                                                                  n_epochs, word_to_int, int_to_word,
+                                                                                  n_words, sentences=None,
+                                                                                  train_loader=train_loader,
+                                                                                  val_loader=val_loader, loss_fn=None,
+                                                                                  word_list=word_list)
 
     # Save only the state_dict
     torch.save(best_model, "/Users/akrvs/PycharmProjects/Project/mlp_model.pth")

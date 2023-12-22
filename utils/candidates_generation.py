@@ -65,29 +65,31 @@ from transformers import BartModel, BartTokenizer
 
     return candidates'''
 
+def predict(custom_input, word_to_int, int_to_word, best_lstm_model, n_words):
+    custom_input_tokens = custom_input.split()
+    input_idx = [word_to_int[word] for word in custom_input_tokens]
+
+    input_one_hot = np.zeros((len(input_idx), n_words), dtype=np.float32)
+    input_one_hot[np.arange(len(input_idx)), input_idx] = 1
+    input_one_hot = torch.Tensor(input_one_hot).unsqueeze(0)
+
+    with torch.no_grad():
+        output = best_lstm_model(input_one_hot)
+
+    predicted_idx = torch.argmax(output, dim=1).item()
+    predicted_word = int_to_word[predicted_idx]
+    return predicted_word
+
 def generate_candidates_lstm(initial_prompt, window_length, n_words, word_to_int, int_to_word, best_lstm_model):
-    """
-    Generates candidate sequences based on an initial prompt using an LSTM model.
-
-    Args:
-        initial_prompt: The initial prompt for generating candidates.
-        window_length: Length of the sliding window used for generating patterns.
-        n_words: Number of words in the vocabulary.
-        word_to_int: Mapping of words to integer indices.
-        int_to_word: Mapping of integer indices to words.
-        best_lstm_model: The best trained LSTM model.
-
-    Returns:
-        A list of generated candidate sequences.
-    """
-    initial_prompt = initial_prompt.lower()
-    candidates = [[initial_prompt]]
+    initial_prompt = initial_prompt.lower().split()
+    candidates = [initial_prompt]
 
     for position in range(3):
         new_candidates = []
         for candidate in candidates:
             assert isinstance(candidate, list)
             words = candidate[-min(window_length, len(candidate)):]
+            print(words)
             pattern = np.zeros((len(words), n_words))
 
             for i, w in enumerate(words):
@@ -99,6 +101,10 @@ def generate_candidates_lstm(initial_prompt, window_length, n_words, word_to_int
             prediction = best_lstm_model(x)
             top_indices = torch.argsort(prediction, descending=True)[0, :5]
             top_predictions = [int_to_word.get(int(idx), "UNK") for idx in top_indices]
+
+            user_input = ' '.join(candidate)
+            predicted_word = predict(user_input, word_to_int, int_to_word, best_lstm_model, n_words)
+            top_predictions.append(predicted_word)
 
             new_candidates.extend(candidate + [word] for word in top_predictions)
         candidates = new_candidates

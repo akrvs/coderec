@@ -129,4 +129,35 @@ def data_loading(X, y, test_size, batch_size):
 
     return train_loader, val_loader
 
+def pad_sequence(sentence, max_len):
+    words = sentence.split()
+    padded_words = words + ['<PAD>'] * (max_len - len(words))
+    return ' '.join(padded_words)
 
+def tokenizer(sentences):
+    word_list = " ".join(sentences).split()
+    word_list = list(set(word_list))
+    word_dict = {w: i for i, w in enumerate(word_list)}
+    word_dict["UNK"] = len(word_dict)
+    number_dict = {i: w for i, w in enumerate(word_list)}
+    n_class = len(word_dict)
+
+    return word_list, word_dict, number_dict, n_class
+
+def make_batch(sentences, word_dict, n_class):
+    input_batch = []
+    target_batch = []
+    for sentence in sentences:
+        words = sentence.split()
+        input_idx = [word_dict[word] for word in words[:-1]]
+        target = word_dict[words[-1]]
+
+        input_one_hot = np.zeros((len(input_idx), n_class), dtype=np.float32)
+        input_one_hot[np.arange(len(input_idx)), input_idx] = 1
+
+        input_batch.append(input_one_hot)
+        target_batch.append(target)
+    return torch.Tensor(input_batch), torch.LongTensor(target_batch)
+
+def remove_question_marks(sentence):
+    return sentence.replace("?", "")

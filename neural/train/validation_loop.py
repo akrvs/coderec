@@ -28,9 +28,4 @@ def calculate_val_loss(model, val_loader, loss_fn=None):
             else:
                 val_loss += loss_fn(y_val_pred, y_val_batch).item()
 
-            # sample_size = min(X_val_batch.size(0), max_sample_size)
-            # sample_indices = random.sample(range(X_val_batch.size(0)), sample_size)
-            # sampled_embeddings = X_val_batch[sample_indices]
-            # y_val_pred = model(sampled_embeddings)
-
     return val_loss

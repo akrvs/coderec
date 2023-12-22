@@ -1,3 +1,4 @@
+import random
 import torch
 import torch.optim as optim
 import utils
@@ -20,10 +21,10 @@ def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate,
         for triplet_index, (triplet_embeddings, _) in enumerate(zip(divided_embeddings_lists, divided_sentences_lists),
                                                                 start=1):
             num_sentences = len(triplet_embeddings)
-
-            for i in range(num_sentences):
-                for j in range(num_sentences):
-                    for k in range(num_sentences):
+            k = min(num_sentences, 10)
+            for i in random.sample(list(range(num_sentences)), k):
+                for j in random.sample(list(range(num_sentences)), k):
+                    for k in random.sample(list(range(num_sentences)), k):
                         embedding_i = triplet_embeddings[i]
                         embedding_j = triplet_embeddings[j]
                         embedding_k = triplet_embeddings[k]

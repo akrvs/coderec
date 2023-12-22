@@ -1,32 +1,28 @@
-import torch
-
 import neural
-import data
+from data.preproccessing import *
 from utils.candidates_generation import *
 from cluster_analysis import genetic_algorithm
 from neural.mlp_training_2 import train_mlp_model
 from utils.load_or_train import load_or_train_lstm_model
-from neural.mlp_training import train_mlp_model as train_lstm_mlp_model
 
 def run_experiment(prompt, model_architecture, num_epochs, batch_size, learning_rate, num_genes, loss_function=None,
-                   window_length=None, database_path=None, pretrained_model_path=None):
+                   window_length=None, database=None, pretrained_model_path=None):
 
     if model_architecture == 'LSTM':
 
-        word_list = data.read_database(database_path)
-        word_list, word_to_int, int_to_word, n_words = data.preprocess_data(word_list)
-        best_lstm_model, word_to_int, int_to_word = load_or_train_lstm_model(neural.LstmModel, database_path, window_length, batch_size, num_epochs,
-                                                   pretrained_model_path, n_words)
-
+        word_list, word_to_int, int_to_word, n_words = tokenizer(database)
+        best_lstm_model, word_to_int, int_to_word = load_or_train_lstm_model(neural.LstmModel, database, word_list=word_list,
+                                                                             word_to_int=word_to_int, int_to_word=int_to_word,
+                                                                             window_length=window_length, batch_size=batch_size,
+                                                                             n_epochs=num_epochs,
+                                                                             pretrained_model_path=pretrained_model_path,
+                                                                             n_words=n_words)
+        print()
         candidates = generate_candidates_lstm(initial_prompt=prompt, window_length=window_length,
                                                   n_words=n_words, word_to_int=word_to_int,
                                                int_to_word=int_to_word, best_lstm_model=best_lstm_model)
         print()
         print(candidates)
-        '''candidate_embeddings = train_lstm_mlp_model(neural.MlpModel, database_path, best_lstm_model,
-                                              candidates, window_length, batch_size, num_epochs)'''
-
-
         candidate_embeddings = neural.get_candidate_embeddings(embedding_model=best_lstm_model.lstm,
                                                                candidates=candidates,
                                                                window_length=window_length, n_words=n_words,

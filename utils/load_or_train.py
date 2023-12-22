@@ -2,8 +2,8 @@ import torch
 import os
 import neural
 
-def load_or_train_lstm_model(model_class, database_path, window_length, batch_size, n_epochs, pretrained_model_path,
-                             n_words):
+def load_or_train_lstm_model(model_class, database, word_list, word_to_int, int_to_word, window_length, batch_size, n_epochs,
+                             pretrained_model_path, n_words):
     """
         Loads a pre-trained LSTM model if available, otherwise trains a new model.
 
@@ -23,16 +23,21 @@ def load_or_train_lstm_model(model_class, database_path, window_length, batch_si
     if os.path.exists(pretrained_model_path):
         print("Pre-trained model found. Loading the model...")
         best_lstm_model = model_class(n_words)
-        best_lstm_model.load_state_dict(torch.load(pretrained_model_path))
-        word_to_int = torch.load("/Users/akrvs/PycharmProjects/Project/word_to_int.pth")
-        int_to_word = torch.load("/Users/akrvs/PycharmProjects/Project/int_to_word.pth")
-        best_lstm_model.eval()
-    else:
-        print("Pre-trained model not found. Training a new model...")
-        trained_lstm_model = neural.train_lstm_model(model_class, database_path=database_path, window_length=window_length,
-                                              batch_size=batch_size, n_epochs=n_epochs)
-        best_lstm_model = model_class(n_words)
-        best_lstm_model.load_state_dict(torch.load(pretrained_model_path))
+        torch.load("/Users/akrvs/PycharmProjects/Project/lstm_model.pth")
+        torch.load("/Users/akrvs/PycharmProjects/Project/word_to_int.pth")
+        torch.load("/Users/akrvs/PycharmProjects/Project/int_to_word.pth")
         best_lstm_model.eval()
 
-    return best_lstm_model, word_to_int, int_to_word
+        return best_lstm_model, word_to_int, int_to_word
+
+    else:
+        print("Pre-trained model not found. Training a new model...")
+        best_lstm_model, word_to_int, int_to_word = neural.train_lstm_model(model_class, word_list, word_to_int,
+                                                                               int_to_word, n_words=n_words, database=database,
+                                                                               window_length=window_length,
+                                                                               batch_size=batch_size, n_epochs=n_epochs)
+        torch.save(best_lstm_model, pretrained_model_path)
+        torch.save(word_to_int, "/Users/akrvs/PycharmProjects/Project/word_to_int.pth")
+        torch.save(int_to_word, "/Users/akrvs/PycharmProjects/Project/int_to_word.pth")
+
+        return best_lstm_model, word_to_int, int_to_word

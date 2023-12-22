@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 def read_database(db_path):
     """
@@ -26,3 +27,9 @@ def read_database(db_path):
                 words.append(word.lower())
 
     return words
+
+
+def open_json_file(database_path):
+    with open(database_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    return data
