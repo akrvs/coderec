@@ -5,20 +5,23 @@ import neural
 def load_or_train_lstm_model(model_class, database, word_list, word_to_int, int_to_word, window_length, batch_size, n_epochs,
                              pretrained_model_path, n_words):
     """
-        Loads a pre-trained LSTM model if available, otherwise trains a new model.
+        Load or train an LSTM model.
 
         Args:
-            model_class: The class of the LSTM model to train.
-            database_path: Path to the database.
-            window_length: Length of the input window.
-            batch_size: Batch size for training.
-            n_epochs: Number of epochs to train.
-            pretrained_model_path: Path to the pre-trained model.
-            n_words: Number of words in the vocabulary.
+            model_class: The class of the LSTM model.
+            database: The database for training the model.
+            word_list: List of words for training.
+            word_to_int: Dictionary mapping words to integers.
+            int_to_word: Dictionary mapping integers to words.
+            window_length: Length of the input sequence window.
+            batch_size: Size of each training batch.
+            n_epochs: The number of training epochs.
+            pretrained_model_path: Path to the pretrained model.
+            n_words: Number of unique words in the training data.
 
         Returns:
-            The loaded or trained LSTM model.
-        """
+            Tuple: The trained or loaded LSTM model, word_to_int dictionary, int_to_word dictionary.
+    """
 
     if os.path.exists(pretrained_model_path):
         print("Pre-trained model found. Loading the model...")

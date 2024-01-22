@@ -19,7 +19,16 @@ def cosine_similarity(X, y):
     return torch.matmul(X, y.t()) * 0.5 + 0.5
 
 def lukasiewicz_implication_2(x, y, z):
+    """
+        Computes Lukasiewicz implication with three input variables.
+
+        Args:
+            x (torch.Tensor): Input tensor for variable x.
+            y (torch.Tensor): Input tensor for variable y.
+            z (torch.Tensor): Input tensor for variable z.
+
+        Returns:
+            torch.Tensor: Result of Lukasiewicz implication.
+    """
     T = torch.max(torch.zeros_like(x), x + y - 1)
     return torch.min(torch.ones_like(T),  1-T+z)
-
-

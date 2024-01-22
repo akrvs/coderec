@@ -2,6 +2,15 @@ import torch
 from sklearn.metrics.pairwise import cosine_similarity
 
 def calculate_average_cosine_similarity(embeddings):
+    """
+        Calculates the average cosine similarity among a set of embeddings.
+
+        Args:
+            embeddings (numpy.ndarray): An array containing the embeddings.
+
+        Returns:
+            float: The average cosine similarity among the embeddings.
+        """
     embeddings_tensor = torch.tensor(embeddings)
     similarities = cosine_similarity(embeddings_tensor, embeddings_tensor)
     num_embeddings = len(embeddings)

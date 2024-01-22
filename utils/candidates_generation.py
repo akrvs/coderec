@@ -6,66 +6,20 @@ import os
 from neural.architectures.chatgpt_model import get_completion
 from transformers import BartModel, BartTokenizer
 
-'''def generate_candidates_lstm(initial_prompt, window_length, n_words, word_to_int, int_to_word, best_lstm_model):
+def predict(custom_input, word_to_int, int_to_word, best_lstm_model, n_words):
     """
-    Generates candidate sequences based on an initial prompt using an LSTM model.
+    Predicts the next word based on a custom input using an LSTM model.
 
     Args:
-        initial_prompt: The initial prompt for generating candidates.
-        window_length: Length of the sliding window used for generating patterns.
-        n_words: Number of words in the vocabulary.
-        word_to_int: Mapping of words to integer indices.
-        int_to_word: Mapping of integer indices to words.
-        best_lstm_model: The best trained LSTM model.
+        custom_input (str): The custom input text.
+        word_to_int (dict): A dictionary mapping words to their corresponding indices.
+        int_to_word (dict): A dictionary mapping indices to their corresponding words.
+        best_lstm_model (torch.nn.Module): The trained LSTM model.
+        n_words (int): The total number of unique words.
 
     Returns:
-        A list of generated candidate sequences.
+        str: The predicted next word.
     """
-    initial_prompt = initial_prompt.lower()
-    candidates = [[initial_prompt]]
-
-    if window_length > 1:
-        for position in range(window_length - 1):
-            new_candidates = []
-            for candidate in candidates:
-                assert isinstance(candidate, list)
-                words = [""] * (window_length - len(candidate)) + candidate
-                pattern = np.zeros((window_length, n_words))
-                for i, w in enumerate(words):
-                    pattern[i, word_to_int.get(w, word_to_int["UNK"])] = 1
-                array1 = np.array([pattern])
-                x = torch.tensor(array1, dtype=torch.float32)
-
-                prediction = best_lstm_model(x)
-                top_indices = torch.argsort(prediction, descending=True)[0, :5]
-                top_predictions = [int_to_word.get(int(idx), "UNK") for idx in top_indices]
-
-                new_candidates.extend(candidate+[word] for word in top_predictions)
-            candidates = new_candidates
-
-    else:
-        for position in range(10):
-            new_candidates = []
-            for candidate in candidates:
-                assert isinstance(candidate, list)
-                words = candidate[-window_length:]
-                if len(words) >= window_length:
-                    pattern = np.zeros((window_length, n_words))
-                    for i, w in enumerate(words):
-                        pattern[i, word_to_int[w]] = 1
-                    array1 = np.array([pattern])
-                    x = torch.tensor(array1, dtype=torch.float32)
-
-                    prediction = best_lstm_model(x)
-                    top_indices = torch.argsort(prediction, descending=True)[0, :5]
-                    top_predictions = [int_to_word.get(int(idx), "UNK") for idx in top_indices]
-
-                    new_candidates.extend(candidate + [word] for word in top_predictions)
-            candidates = new_candidates
-
-    return candidates'''
-
-def predict(custom_input, word_to_int, int_to_word, best_lstm_model, n_words):
     custom_input_tokens = custom_input.split()
     input_idx = [word_to_int[word] for word in custom_input_tokens]
 
@@ -81,6 +35,20 @@ def predict(custom_input, word_to_int, int_to_word, best_lstm_model, n_words):
     return predicted_word
 
 def generate_candidates_lstm(initial_prompt, window_length, n_words, word_to_int, int_to_word, best_lstm_model):
+    """
+        Generates a list of candidate sentences using an LSTM model.
+
+        Args:
+            initial_prompt (str): The initial prompt for generating candidates.
+            window_length (int): The window length for LSTM model.
+            n_words (int): The total number of unique words.
+            word_to_int (dict): A dictionary mapping words to their corresponding indices.
+            int_to_word (dict): A dictionary mapping indices to their corresponding words.
+            best_lstm_model (torch.nn.Module): The trained LSTM model.
+
+        Returns:
+            list: A list of candidate sentences.
+    """
     initial_prompt = initial_prompt.lower().split()
     candidates = [initial_prompt]
 
@@ -113,7 +81,17 @@ def generate_candidates_lstm(initial_prompt, window_length, n_words, word_to_int
 
 
 def generate_candidates_chatgpt(initial_prompt):
+    """
+        Generates a list of candidate sentences using the ChatGPT model.
 
+        Args:
+            initial_prompt (str): The initial prompt for generating candidates.
+
+        Returns:
+            tuple: A tuple containing:
+                - split_candidate_sentences (list): List of split candidate sentences.
+                - embeddings (list): List of embeddings for candidate sentences.
+    """
     initial_prompt = initial_prompt.lower()
 
     candidates_filename = f"/Users/akrvs/PycharmProjects/Project/candidates.pkl"

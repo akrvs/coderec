@@ -35,4 +35,3 @@ def get_candidate_embeddings(embedding_model, candidates, window_length, n_words
     candidate_embeddings = torch.tensor(candidate_embeddings, dtype=torch.float32)
 
     return candidate_embeddings
-

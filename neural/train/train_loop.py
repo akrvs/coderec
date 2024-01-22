@@ -6,24 +6,29 @@ from data.preproccessing import make_batch
 import random
 import torch
 
-def train_model(model, model_type, optimizer, n_epochs, word_to_int, int_to_word, n_words, sentences=None, train_loader=None, val_loader=None, loss_fn=None, word_list=None):
+def train_model(model, model_type, optimizer, n_epochs, word_to_int, int_to_word, n_words, sentences=None, train_loader=None,
+                val_loader=None, loss_fn=None, word_list=None):
     """
-    Trains a specified model using the provided data and returns the best model, along with the train and
-    validation losses.
+        Trains a neural model using the specified parameters.
 
-    Args:
-        model: The model to train.
-        model_type: Type of the model ("lstm" or "mlp").
-        train_loader: The data loader for the train data.
-        val_loader: The data loader for the validation data.
-        optimizer: The optimizer used for train the model.
-        n_epochs: The total number of epochs to train for.
-        loss_fn: The loss function used for calculating the loss. Default is None.
-        word_list: The list of words corresponding to the input data. Default is None.
+        Args:
+            model (torch.nn.Module): The neural model to be trained.
+            model_type (str): The type of the model, either "lstm" or "mlp".
+            optimizer (torch.optim.Optimizer): The optimizer used for training.
+            n_epochs (int): The number of training epochs.
+            word_to_int (dict): A dictionary mapping words to their corresponding indices.
+            int_to_word (dict): A dictionary mapping indices to their corresponding words.
+            n_words (int): The total number of unique words.
+            sentences (list): List of sentences for training (for LSTM model).
+            train_loader (torch.utils.data.DataLoader): DataLoader for training (for MLP model).
+            val_loader (torch.utils.data.DataLoader): DataLoader for validation (optional).
+            loss_fn: Loss function used for training.
+            word_list (list): List of unique words.
 
-    Returns:
-        The best model obtained during train, and lists containing train and validation losses.
-        If model_type is "mlp", it also returns the similarity results.
+        Returns:
+            tuple: A tuple containing:
+                - best_model (torch.nn.Module): The best-trained model.
+                - additional outputs based on the model type (e.g., train_losses, val_losses, similarity_results).
     """
     best_model = None
     best_loss = np.inf
@@ -66,21 +71,6 @@ def train_model(model, model_type, optimizer, n_epochs, word_to_int, int_to_word
                 loss.backward()
                 optimizer.step()
                 total_loss += loss.item()
-
-
-        '''avg_loss = total_loss / len(train_loader)
-
-        if val_loader is not None:
-            val_loss = calculate_val_loss(model, val_loader, loss_fn)
-            avg_val_loss = val_loss / len(val_loader)
-            val_losses.append(avg_val_loss)
-
-        train_losses.append(avg_loss)
-        val_losses.append(avg_val_loss)
-
-        if avg_val_loss < best_loss:
-            best_loss = avg_val_loss
-            best_model = model.state_dict()'''
 
     best_model = model.state_dict()
 

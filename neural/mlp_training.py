@@ -1,56 +1,68 @@
+import random
+import torch
 import torch.optim as optim
-from neural.embeddings.extraction import *
-from data.database import read_database
-from data.preproccessing import *
-import neural
+import utils
+from utils.similarities import lukasiewicz_implication_2
 
-def train_mlp_model(model_class, database_path, best_lstm_model, candidates, window_length, batch_size=128, n_epochs=100):
+def train_mlp_model(model, embeddings, split_candidate_sentences, learning_rate, num_epochs, loss_function):
     """
-    Trains an MLP model using the provided database.
+        Trains an MLP model using the specified parameters.
 
-    Args:
-        model_class: The class of the MLP model to train.
-        best_lstm_model: The best LSTM model that has been obtained.
-        candidates: List of candidate sequences.
-        database_path: Path to the database file.
-        window_length: Length of the input sequences.
-        batch_size: Batch size for training. Default is 128.
-        n_epochs: Number of training epochs. Default is 100.
+        Args:
+            model (torch.nn.Module): The MLP model to be trained.
+            embeddings (list): List of embeddings corresponding to candidate sentences.
+            split_candidate_sentences (list): List of candidate sentences.
+            learning_rate (float): The learning rate for the optimizer.
+            num_epochs (int): The number of training epochs.
+            loss_function: The loss function for training the model.
 
-    Returns:
-        The state_dict of the trained MLP model.
+        The function trains an MLP model using a triplet-based approach with Lukasiewicz implication.
     """
-    if database_path is None:
-        raise ValueError("Database path is required.")
 
-    word_list = read_database(database_path)
+    divided_embeddings_lists = [embeddings[i:i + 3] for i in range(0, len(embeddings), 3)]
+    divided_sentences_lists = [split_candidate_sentences[i:i + 3] for i in range(0, len(split_candidate_sentences), 3)]
 
-    word_list, word_to_int, int_to_word, n_words = preprocess_data(word_list)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    with torch.no_grad():
-        embedding_model = best_lstm_model.lstm
-        X, y = create_sequences(word_list, word_to_int, window_length)
+    for epoch in range(num_epochs):
+        model.train()
+        loss = 0
+        optimizer.zero_grad()
+        n = 0
+        impl = 0
 
-        candidate_embeddings = get_candidate_embeddings(embedding_model=embedding_model, candidates=candidates,
-                                                        window_length=window_length, n_words=n_words,
-                                                        word_to_int=word_to_int)
+        for triplet_index, (triplet_embeddings, _) in enumerate(zip(divided_embeddings_lists, divided_sentences_lists),
+                                                                start=1):
+            num_sentences = len(triplet_embeddings)
+            k = min(num_sentences, 10)
+            for i in random.sample(list(range(num_sentences)), k):
+                for j in random.sample(list(range(num_sentences)), k):
+                    for k in random.sample(list(range(num_sentences)), k):
+                        embedding_i = triplet_embeddings[i]
+                        embedding_j = triplet_embeddings[j]
+                        embedding_k = triplet_embeddings[k]
 
-    mlp_model = model_class(candidate_embeddings.shape[1], 512, n_words)
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    mlp_model.to(device)
-    optimizer = optim.Adam(mlp_model.parameters(), weight_decay=1e-4)
+                        tensor_i = torch.tensor(embedding_i).unsqueeze(0)
+                        tensor_j = torch.tensor(embedding_j).unsqueeze(0)
+                        tensor_k = torch.tensor(embedding_k).unsqueeze(0)
 
-    train_loader, val_loader = data_loading(candidate_embeddings, y[:candidate_embeddings.shape[0]],
-                                            test_size=0.2, batch_size=batch_size)
+                        output_i = model(tensor_i)
+                        output_j = model(tensor_j)
+                        output_k = model(tensor_k)
 
-    best_model, train_losses, val_losses, similarity_results = neural.train_model(mlp_model, "mlp", optimizer,
-                                                                                  n_epochs, word_to_int, int_to_word,
-                                                                                  n_words, sentences=None,
-                                                                                  train_loader=train_loader,
-                                                                                  val_loader=val_loader, loss_fn=None,
-                                                                                  word_list=word_list)
+                        x = utils.cosine_similarity(output_i, output_j)
+                        y = utils.cosine_similarity(output_j, output_k)
+                        z = utils.cosine_similarity(output_k, output_i)
 
-    # Save only the state_dict
-    torch.save(best_model, "/Users/akrvs/PycharmProjects/Project/mlp_model.pth")
+                        if x > 0.9999 or y > 0.9999 or z > 0.9999:
+                            continue
 
-    return candidate_embeddings
+                        loss += loss_function(x, y, z) + x + y + z
+                        n += 1
+                        impl += lukasiewicz_implication_2(x, y, z)
+
+
+        loss.backward()
+        optimizer.step()
+
+        print(f"Epoch [{epoch + 1}/{num_epochs}] - Loss: {(loss.item()) / n:.4f} \t {(impl.item()) / n:.4f}")

@@ -20,18 +20,20 @@ data = open_json_file(file_path)
 
 # Some preprocessing
 sentences = [remove_question_marks(entry["Question"].lower()) for entry in data["Data"]]
-sentences = sentences[1:350]
+sentences = sentences[1:3500]
 max_len = max(len(sentence.split()) for sentence in sentences)
 sentences = [pad_sequence(sentence, max_len) for sentence in sentences]
 
 # User's prompt
 prompt = input("Enter prompt here: ")
 
+# Run experiment
 results, selected_indices, selected_embeddings, MLP_output, candidates, candidate_embeddings = run_experiment(prompt,
                         model_architecture='LSTM', num_epochs=num_epochs, batch_size=batch_size,
                          learning_rate=learning_rate, num_genes=num_genes, loss_function=lukasiewicz_implication_2,
                         window_length=window_length, database=sentences, pretrained_model_path=pretrained_model_path)
 
+# Calculate cosine similarity and print the results
 print()
 print("Most Dissimilar Sentences:")
 for i, indices in enumerate(selected_indices):

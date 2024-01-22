@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 Swagger(app)
 
-openai.api_key = os.environ.get('OPENAI_API_KEY', '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')
+openai.api_key = os.environ.get('OPENAI_API_KEY', '')
 
 with open('config.json', 'r') as config_file:
     config = json.load(config_file)
@@ -41,7 +41,7 @@ def index():
       200:
         description: Result of the experiment.
     """
-    result = None  # Initialize result to None
+    result = None
 
     if request.method == 'POST':
         prompt = request.form.get('prompt')
@@ -60,7 +60,7 @@ def index():
 def run_lstm_experiment(prompt):
     return run_experiment(prompt, model_architecture='LSTM', num_epochs=100, batch_size=batch_size,
                           learning_rate=learning_rate, num_genes=num_genes, loss_function=None, window_length=2,
-                          database_path=database_path, pretrained_model_path=pretrained_model_path)
+                          database=database_path, pretrained_model_path=pretrained_model_path)
 
 def run_chatgpt_experiment(prompt):
     return run_experiment(prompt, model_architecture='ChatGPT', num_epochs=100, batch_size=batch_size,

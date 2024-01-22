@@ -6,18 +6,25 @@ import torch
 def train_lstm_model(model_class, word_list, word_to_int, int_to_word, n_words, database=None, window_length=3, batch_size=128,
                      n_epochs=100):
     """
-        Trains an LSTM model using the provided database.
+        Trains an LSTM model using the specified parameters.
 
         Args:
-            model_class: The class of the LSTM model to train.
-            database_path: Path to the database file. Default is None.
-            window_length: Length of the input sequences. Default is 3.
-            batch_size: Batch size for training. Default is 128.
-            n_epochs: Number of training epochs. Default is 100.
+            model_class: The class of the LSTM model.
+            word_list (list): List of unique words.
+            word_to_int (dict): A dictionary mapping words to their corresponding indices.
+            int_to_word (dict): A dictionary mapping indices to their corresponding words.
+            n_words (int): The total number of unique words.
+            database (str): Path to the database file (optional).
+            window_length (int): Length of the input sequence window (default: 3).
+            batch_size (int): Size of each training batch (default: 128).
+            n_epochs (int): The number of training epochs (default: 100).
 
         Returns:
-            The trained LSTM model.
-        """
+            tuple: A tuple containing:
+                - best_model (torch.nn.Module): The best-trained LSTM model.
+                - word_to_int (dict): Updated word_to_int dictionary.
+                - int_to_word (dict): Updated int_to_word dictionary.
+    """
 
     WordModel = model_class(n_words)
     optimizer = optim.Adam(WordModel.parameters(), weight_decay=5.E-4)
